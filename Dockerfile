@@ -1,8 +1,16 @@
-FROM 1and1internet/ubuntu-16:latest
-MAINTAINER brian.wojtczak@1and1.co.uk
+FROM golang as configurability_apache2
+MAINTAINER brian.wilkinson@1and1.co.uk
+WORKDIR /go/src/github.com/1and1internet/configurability
+RUN git clone https://github.com/1and1internet/configurability.git . \
+	&& make apache2\
+	&& echo "configurability apache2 plugin successfully built"
+
+FROM 1and1internet/ubuntu-18:latest
+MAINTAINER brian.wilkinston@1and1.co.uk
 ARG DEBIAN_FRONTEND=noninteractive
 ARG RPAF_VERSION=tags/v0.8.4
 COPY files /
+COPY --from=configurability_apache2 /go/src/github.com/1and1internet/configurability/bin/plugins/apache2.so /opt/configurability/goplugins
 ENV SSL_KEY=/ssl/ssl.key \
     SSL_CERT=/ssl/ssl.crt \
     DOCUMENT_ROOT=html \
@@ -28,13 +36,10 @@ RUN \
   echo 'MaxConnectionsPerChild ${MAXCONNECTIONSPERCHILD}' >> /etc/apache2/apache2.conf && \
   sed -i -e 's/Listen 80/Listen 8080/g' /etc/apache2/ports.conf && \
   sed -i -e 's/Listen 443/#Listen 8443/g' /etc/apache2/ports.conf && \
-  echo "Listen 8081" >> /etc/apache2/ports.conf && \
   a2enmod deflate rewrite ssl headers macro rpaf cgi expires include && \
   a2disconf other-vhosts-access-log && \
   a2enconf vhosts-logging && \
   apt-get -y autoremove build-essential apache2-dev git && \
-  cd /opt/configurability/src/configurability_apache2_process/ && \
-  pip --no-cache install --upgrade . && \
   rm -rf /tmp/mod_rpaf && \
   rm -rf /var/lib/apt/lists/*
 
