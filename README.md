@@ -26,4 +26,4 @@ A simple Makefile is included for your convience. It assumes a linux environment
 To build and test just run `make`.
 You can also just `make pull`, `make build` and `make test` separately.
 
-Please see the top of the Makefile for various variables which you may choose to customise. Variables may be passed as arguments, e.g. `make IMAGE_NAME=bob` or `make build BUILD_ARGS="--rm --no-cache"`
+Please see the top of the Makefile for various variables which you may choose to customise. Variables may be passed as arguments, e.g. `make IMAGE_NAME=bob` or `make build BUILD_ARGS="--rm --no-cache"`.
